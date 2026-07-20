@@ -1,0 +1,39 @@
+{
+  "_comment": "PPO favorable-drift retry (T-09 E_k Q0.99) \u2014 g_drifted = -4.905 (0.5x nominal) | 2026-06-30",
+  "_note": "0.5x nominal gravity makes hopping easier \u2014 policy gets more reward than pilot predicts. Tests whether E_k A_surplus fires at the stricter Q0.99 threshold. After NAS run: python t09_compute_ek.py ./results/mujoco/hopper/t10_favorable --q-warn 0.99",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper/t10_favorable",
+  "episodic_results_dir": "./results/mujoco/hopper",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "ckpt_dir": "./results/mujoco/hopper",
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -4.905,
+    "abrupt_ramp_duration": 50000,
+    "_comment": "0.5x nominal gravity \u2014 FAVORABLE drift. Policy trained at g=-9.81; evaluation at g=-4.905 gives excess reward."
+  },
+  "save_trajectories": true,
+  "_post_run_note": "After NAS run completes: copy results to SSD, then run locally: python test_sequence/t09_compute_ek.py /path/to/t10_favorable --q-warn 0.99",
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "abrupt",
+    "gradual"
+  ]
+}

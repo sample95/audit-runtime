@@ -1,0 +1,48 @@
+{
+  "_comment": "Walker2d-v4 | EXTERNAL SB3-Zoo PPO checkpoint (HuggingFace sb3/ppo-Walker2d-v3) | 2026-07-08",
+  "_env_version_note": "v4, not v5: gymnasium 0.29.1 (the Kaggle stack pin) provides MuJoCo envs up to v4 only. Policies trained on v3, deployed on v4 \u2014 declared gap.",
+  "_provenance": "Policy trained by the RL-Baselines3-Zoo project on Walker2d-v3 (single seed, zoo hyperparameters: env_wrapper=sb3_contrib.common.wrappers.TimeFeatureWrapper, normalize=True \u2014 see https://huggingface.co/sb3/ppo-Walker2d-v3). Fetch + rename via training/fetch_walker2d_zoo.py. Declared scope: n=1 per algorithm, no M1/M2/M3 regime axis, trained-on-v3/deployed-on-v4 version gap. Cross-morphology DEMONSTRATION of black-box audit on an externally trained policy \u2014 not a replication of the Hopper protocol. Run baseline first; the pre-deployment gate (30% rule) decides admissibility.",
+  "_obs_wrapper_note": "TimeFeatureWrapper adds a 1-dim time-remaining feature (17-dim Walker2d obs -> 18-dim), matching this checkpoint's saved VecNormalize rms shape -- required or model.predict()/normalization crashes with a shape mismatch. Side effect: the audit's raw_env_obs stream (and therefore D_k) also sees this synthetic channel, not just physical state. Part of the declared external-checkpoint gap, not a protocol deviation for the native Hopper/Walker2d subjects (which don't set this key). sb3/sac-Walker2d-v3 does not use this wrapper (normalize=False) -- see walker2d_zoo_sac.json.",
+  "env_id": "Walker2d-v4",
+  "results_dir": "./results/mujoco/walker2d_zoo",
+  "ckpt_dir": "./results/mujoco/walker2d_zoo",
+  "conditions": [
+    "ZP"
+  ],
+  "seeds": [
+    0
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "t0_abrupt": 510000,
+  "_t0_note": "510k, off the window grid \u2014 lesson of the Hopper boundary artefact (thesis sec 3.1.2).",
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "obs_wrapper": "TimeFeatureWrapper",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "drift_metric_apply_to": "raw_env_obs",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715,
+    "_comment": "1.5x nominal gravity \u2014 same perturbation as configs/walker2d.json"
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Reset-free deployment (v12.9 stop-on-first-failure): first fall = T_hard, matching the Hopper protocol.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

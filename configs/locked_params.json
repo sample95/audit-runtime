@@ -1,0 +1,145 @@
+{
+  "_version": "v12.2",
+  "_description": "Locked parameters for the Empirical Audit Framework for RL Policy Reliability under Persistent Deployment. All values are frozen for official experiments.",
+
+  "domains": {
+    "mujoco": {
+      "environments": ["Hopper-v4", "Walker2d-v4"],
+      "training_budget_steps": 1000000,
+      "evaluation_horizon_steps": 1000000,
+      "drift_bins": 21,
+      "drift_window_steps": 50000,
+      "drift_stride_steps": 25000,
+      "reward_weights": {
+        "w_forward": 1.0,
+        "w_ctrl": 0.001,
+        "r_healthy": 1.0
+      },
+      "training_conditions": {
+        "M1": {"time_limit": 1000, "reset_noise_scale": 0.005},
+        "M2": {"time_limit": 250,  "reset_noise_scale": 0.005},
+        "M3": {"time_limit": 1000, "reset_noise_scale": 0.02}
+      }
+    },
+    "pyflyt": {
+      "environments": ["PyFlyt/QuadX-Hover-v4"],
+      "training_budget_steps": 4000000,
+      "evaluation_horizon_steps": 600000,
+      "drift_bins": 25,
+      "drift_window_steps": 30000,
+      "drift_stride_steps": 15000,
+      "fixed_kwargs": {
+        "flight_mode": 0,
+        "angle_representation": "quaternion",
+        "agent_hz": 40,
+        "sparse_reward": false,
+        "flight_dome_size": 3.0
+      },
+      "reward_kernel": {
+        "base_step_reward": -0.1,
+        "collision_reward": -100.0,
+        "hover_target": [0, 0, 1],
+        "dense_shaping": true
+      },
+      "training_conditions": {
+        "Q1": {"max_duration_seconds": 10.0},
+        "Q2": {"max_duration_seconds": 2.5}
+      }
+    },
+    "grid2op": {
+      "environments": ["l2rpn_case14_sandbox"],
+      "training_budget_steps": 1000000,
+      "evaluation_horizon_steps": 600000,
+      "drift_bins": 25,
+      "drift_window_steps": 30000,
+      "drift_stride_steps": 15000,
+      "interface": "Box-only",
+      "action_space": {
+        "type": "BoxGymActSpace",
+        "attr_to_keep": ["redispatch", "curtail"],
+        "label": "Box-basic"
+      },
+      "observation_space": {
+        "type": "BoxGymObsSpace",
+        "label": "full flattened"
+      },
+      "training_conditions": {
+        "G1": {"h_train": 1000, "randomize_start": false},
+        "G2": {"h_train": 250,  "randomize_start": false},
+        "G3": {"h_train": 1000, "randomize_start": true}
+      },
+      "transition_schedules": {
+        "D0": {"label": "baseline",    "description": "train chronics only"},
+        "D1": {"label": "abrupt",      "description": "switch to test chronics at t0=0.5*T_eval"},
+        "D2": {"label": "gradual",     "description": "mixture probability 0->1 up to t0=0.5*T_eval"}
+      }
+    }
+  },
+
+  "ppo": {
+    "algorithm": "PPO",
+    "library": "stable-baselines3",
+    "policy": "MlpPolicy",
+    "device": "cpu",
+    "n_steps": 2048,
+    "batch_size": 128,
+    "n_epochs": 10,
+    "learning_rate": 3e-4,
+    "gamma": 0.99,
+    "gae_lambda": 0.95,
+    "clip_range": 0.2,
+    "clip_range_vf": null,
+    "ent_coef": 0.0,
+    "vf_coef": 0.5,
+    "max_grad_norm": 0.5,
+    "normalize_advantage": true,
+    "use_sde": false,
+    "target_kl": null,
+    "derived": {
+      "rollout_buffer_size": 6144,
+      "minibatches_per_epoch": 48
+    }
+  },
+
+  "network": {
+    "type": "separate",
+    "pi": [256, 256],
+    "vf": [256, 256],
+    "activation": "ReLU",
+    "optimizer": "Adam"
+  },
+
+  "vecenv": {
+    "wrapper": "DummyVecEnv",
+    "n_envs": 3,
+    "vecnormalize": false,
+    "advantage_normalization": true
+  },
+
+  "replication": {
+    "default_seeds": [0, 1, 2, 3, 4],
+    "n_seeds_default": 5,
+    "n_seeds_escalation": 10,
+    "escalation_trigger": "KM CI half-width > 0.10 at t*=0.5*T_eval"
+  },
+
+  "measurement_instrument": {
+    "pilot_windows_k0": 4,
+    "histogram_pseudocount_alpha": 0.5,
+    "clipping_percentile_low": 0.5,
+    "clipping_percentile_high": 99.5,
+    "soft_failure_threshold_c": 2,
+    "soft_failure_persistence_m": 2,
+    "soft_failure_time": "start of first failing window",
+    "hard_failure_precedence_on_ties": true,
+    "drift_warning_quantile": 0.95,
+    "drift_watch_quantile": 0.90,
+    "drift_watch_role": "descriptive only"
+  },
+
+  "logging": {
+    "per_step": ["observation", "action", "reward", "terminated", "truncated", "episode_id", "global_step"],
+    "metadata": ["env_id", "condition_id", "drift_schedule_id", "seed"],
+    "pilot_freeze_artifacts": ["mu", "sigma", "clip_bounds", "bin_edges", "tau_watch", "tau_warn"]
+  }
+}

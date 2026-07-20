@@ -1,0 +1,38 @@
+{
+  "_comment": "T-10 re-run with D_k_dims patch (v2) | Hopper-v5 | PPO | v12.6",
+  "_note": "Identical to hopper_t10.json but writes to a separate results_dir so t10_rf is preserved. Re-run triggered 2026-05-31 to get D_k_dims embedded natively in JSON (per-dim JSD field added to audit_deploy.py 2026-05-30). Also collects D_k_dims for post-hoc dimension attribution without buf1k extraction.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper/t10_v2",
+  "episodic_results_dir": "./results/mujoco/hopper",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "ckpt_dir": "./results/mujoco/hopper",
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -19.62,
+    "abrupt_ramp_duration": 50000,
+    "_comment": "2x nominal gravity \u2014 locked by T-03; abrupt uses 50k-step linear ramp"
+  },
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

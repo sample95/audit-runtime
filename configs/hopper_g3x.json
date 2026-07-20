@@ -1,0 +1,55 @@
+{
+  "_comment": "T-03 gravity sweep \u2014 3\u00d7 nominal | M3 \u00d7 abrupt \u00d7 5 seeds \u00d7 1M steps",
+  "_purpose": "Characterise detection envelope at 3\u00d7 gravity (g=-29.43 m/s\u00b2). Part of T-03 gravity boundary sweep. See planned_tests.md T-03 and tuning_journal.md T-03.",
+  "_parameters": "floor=2e-4 (instrument.json), m_fail=2 (instrument.json) \u2014 both locked by T-01/T-02.",
+  "_why_3x": "If 2\u00d7 is still below the Pr(timely)\u22650.60 knee, 3\u00d7 is the upper bound. If 3\u00d7 also fails, the framework has a sensitivity limitation at 1M steps \u2014 this becomes a thesis finding, not a parameter to tune.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper/g3x",
+  "ckpt_dir": "./results/mujoco/hopper",
+  "conditions": [
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -29.43,
+    "abrupt_ramp_duration": 50000,
+    "_comment": "3.0\u00d7 nominal gravity. T0=500k; abrupt uses 50k-step linear ramp (T-10 revision 2026-05-14)."
+  },
+  "hard_failure_counts": false,
+  "suppress_hard_failure_warning": true,
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "safety_margins": [
+    {
+      "_comment": "Hopper is_healthy: z in [0.7, inf). obs[0] = qpos[1] = torso z-height.",
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "_comment": "Hopper is_healthy: torso angle in [-0.2, 0.2] rad. obs[1] = qpos[2] = torso lean.",
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "abrupt"
+  ]
+}

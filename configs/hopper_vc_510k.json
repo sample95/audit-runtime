@@ -1,0 +1,67 @@
+{
+  "_comment": "VecNorm abrupt rerun v2 \u2014 T0=510k confirmed correct, stop-on-first-failure fix | 2026-07-07",
+  "_bugs_fixed": "v1 (2026-07-02): T0=510k was already correct but rollout loop reset on terminated instead of stopping \u2014 ran episodic, T_hard~999.9k invalid. Fixed in audit_deploy.py 2026-07-07 (unconditional break on terminated).",
+  "_note": "results_dir changed to _v2 so this run does NOT collide with/skip the invalid v1 output already sitting in hopper_vc_510k/.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_vc_510k_v2",
+  "ckpt_dir": "./results/mujoco/hopper_vc",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "t0_abrupt": 510000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "safety_margins_apply_to": "raw_env_obs",
+  "drift_metric_apply_to": "raw_env_obs",
+  "_vecnormalize_note": "VecNormalize-trained common-policy branch. Load matching *_vecnormalize.pkl, freeze stats during evaluation, and compute diagnostics from raw env observations/rewards.",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715,
+    "_comment": "1.5x nominal gravity \u2014 documented perturbation choice"
+  },
+  "_hard_failure_counts_note": "hard_failure_counts/suppress_hard_failure_warning removed 2026-07-07 \u2014 audit_deploy.py now always stops on first terminated=True (reset-free deployment), so this flag no longer changes rollout behavior.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "save_trajectories": true,
+  "safety_margins": [
+    {
+      "_comment": "Hopper is_healthy: z in [0.7, inf). obs[0] = qpos[1] = torso z-height (x excluded by default).",
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "_comment": "Hopper is_healthy: torso angle in [-0.2, 0.2] rad. obs[1] = qpos[2] = torso lean angle.",
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "abrupt"
+  ]
+}

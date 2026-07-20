@@ -1,0 +1,52 @@
+{
+  "_comment": "Walker2d-v5 | PPO | v12.2 | MuJoCo locomotion",
+  "env_id": "Walker2d-v5",
+  "results_dir": "./results/mujoco/walker2d",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "safety_margins_apply_to": "raw_env_obs",
+  "drift_metric_apply_to": "raw_env_obs",
+  "_vecnormalize_note": "Final/common PPO policy branch uses VecNormalize. Load matching *_vecnormalize.pkl, freeze stats during evaluation, and compute diagnostics from raw env observations/rewards.",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715,
+    "_comment": "1.5x nominal gravity \u2014 documented perturbation choice"
+  },
+  "hard_failure_counts": false,
+  "_hard_failure_counts_rationale": "Walker2d falls are recoverable episode resets. Failure criterion: z in [0.8, 2.0] and |angle| <= 1.0 \u2014 env default, never overridden with Hopper values.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ],
+  "t0_abrupt": 510000,
+  "_t0_note": "510k, off the window grid (thesis sec 3.1.2 boundary-artefact lesson)",
+  "_gate_note": "Deployed subjects: M1+M3 per pre-deployment gate (forget9 report 2026-07-05: M2 condition-level fail rate ~0.49 > 0.30, excluded — same protocol as Hopper SAC M2). All 5 seeds per admitted condition deployed, none excluded (R37)."
+}

@@ -1,0 +1,35 @@
+{
+  "_comment": "SAC none-condition extended to 5M steps \u2014 checks long-horizon stability and D_k drift beyond 1M evaluation window | 2026-07-05",
+  "_note": "B=199 covers all windows [0, 4950000] with w=50k, s=25k. Last window ends at 5000000 = T_eval. Mirrors hopper_t10_none_5M.json and hopper_vc_none_5M.json. SAC none-condition at 1M showed S(1M)=80% (M1 1/5 fail, M2 3/5 fail, M3 1/5 fail); this checks whether additional failures occur and whether D_k drifts above tau_warn_floor for stable seeds.",
+  "_bugs_fixed": "v1 (2026-07-06, results in t10_sac_none_5M/) predates the 2026-07-07 audit_deploy.py fix (hard_failure_counts unset -> defaulted False -> episodic reset on terminated). Any run that actually failed mid-deployment has an unreliable T_hard; results_dir changed to _v2 so this rerun does not collide with/skip the old output.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_sac/t10_sac_none_5M_v2",
+  "ckpt_dir": "./results/mujoco/hopper_sac",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 5000000,
+  "B": 199,
+  "w": 50000,
+  "s": 25000,
+  "algo": "SAC",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -19.62,
+    "_comment": "Nominal gravity only \u2014 drift never applied in none condition"
+  },
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline"
+  ]
+}

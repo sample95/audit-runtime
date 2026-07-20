@@ -1,0 +1,47 @@
+{
+  "_comment": "PyFlyt/QuadX-Hover-v4 | PPO | v12.2 | Quadrotor hover",
+  "env_id": "PyFlyt/QuadX-Hover-v4",
+  "results_dir": "./results/pyflyt/hover",
+  "conditions": [
+    "Q1",
+    "Q2"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 600000,
+  "B": 25,
+  "w": 30000,
+  "s": 15000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "save_trajectories": true,
+  "drift_params": {
+    "noise_std_max": 0.2,
+    "_comment": "Additive Gaussian obs noise \u2014 sensor degradation proxy. sigma=0.2 produces measurable JSD shift while remaining physically interpretable."
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Quadrotor collision or out-of-bounds is operationally irreversible (vehicle destroyed in real deployment). Simulation reset is an audit artifact.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "env_kwargs": {
+    "flight_mode": 0,
+    "flight_dome_size": 3.0,
+    "sparse_reward": false,
+    "agent_hz": 40
+  },
+  "condition_durations": {
+    "Q1": 10.0,
+    "Q2": 2.5
+  },
+  "perturbation_wrapper": "ObsNoisePerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

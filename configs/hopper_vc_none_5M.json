@@ -1,0 +1,63 @@
+{
+  "_comment": "VecNorm baseline condition extended to 5M steps \u2014 checks for failures beyond the 2M right-censoring horizon | 2026-07-02",
+  "_note": "B=199 covers all windows [0, 4950000] with w=50k, s=25k. Last window ends at 5000000 = T_eval. VecNorm was 15/15 right-censored at 2M; this checks 2M\u20135M range.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_vc_none_5M",
+  "ckpt_dir": "./results/mujoco/hopper_vc",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 5000000,
+  "B": 199,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "safety_margins_apply_to": "raw_env_obs",
+  "drift_metric_apply_to": "raw_env_obs",
+  "_vecnormalize_note": "VecNormalize-trained common-policy branch. Load matching *_vecnormalize.pkl, freeze stats during evaluation, compute diagnostics from raw env observations/rewards.",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715,
+    "_comment": "Nominal gravity only \u2014 drift never applied in baseline condition"
+  },
+  "hard_failure_counts": false,
+  "suppress_hard_failure_warning": true,
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "safety_margins": [
+    {
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline"
+  ]
+}

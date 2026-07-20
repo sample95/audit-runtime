@@ -1,0 +1,48 @@
+{
+  "_comment": "10\u00d7 gravity EXTREME pilot \u2014 guaranteed collapse | 3 conditions \u00d7 seed 0 \u00d7 abrupt \u00d7 300k steps",
+  "_why_10g": "2\u00d7 gravity (g=-19.62) may still be absorbed by robust policies. 10\u00d7 (g=-98.1) makes Hopper physically unable to stand \u2014 any policy collapses within seconds. Use this to confirm A_deg fires and the framework works end-to-end before tuning perturbation magnitude.",
+  "_scale_down_after": "Once A_deg fires here, back off to 5\u00d7 (g=-49.05) or 3\u00d7 (g=-29.43) to find the detection boundary.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_10g_extreme",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0
+  ],
+  "T_eval": 300000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -98.1,
+    "_comment": "10\u00d7 nominal gravity \u2014 certain policy collapse post-t0"
+  },
+  "hard_failure_counts": false,
+  "suppress_hard_failure_warning": true,
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "safety_margins": [
+    {
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "abrupt"
+  ]
+}

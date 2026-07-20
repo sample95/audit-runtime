@@ -1,0 +1,57 @@
+{
+  "_comment": "T-05 worker \u2014 condition M1 only | splits full 45-run matrix for parallel execution",
+  "_purpose": "Run alongside hopper_t05_M1/M2/M3 in 3 simultaneous terminals. All write to the same results_dir. Merge with deploy_results.py --domain hopper_t05 after all 3 finish.",
+  "_locked_parameters": {
+    "tau_warn_floor": "2e-4 (instrument.json, locked by T-01)",
+    "m_fail": "2 (instrument.json, locked by T-02)",
+    "g_drifted": "-19.62 \u2014 2x nominal gravity (locked by T-03)"
+  },
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_t05",
+  "ckpt_dir": "./results/mujoco/hopper/subjectB",
+  "conditions": [
+    "M1"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -19.62,
+    "_comment": "2.0x nominal gravity \u2014 locked by T-03."
+  },
+  "hard_failure_counts": false,
+  "suppress_hard_failure_warning": true,
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "safety_margins": [
+    {
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

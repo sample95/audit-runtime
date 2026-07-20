@@ -1,0 +1,44 @@
+{
+  "_comment": "Grid2op live-monitor DEMO (n=1) | Grid2opChronics-v0 via core/run_grid2op_demo.py | 2026-07-07",
+  "_scope": "Single reset-free deployment for the live-monitor demonstration (thesis sec 3.6). No detection-rate/FAR/coverage statistics may be quoted from this run. Smoke-test with T_eval=60000 first.",
+  "env_id": "Grid2opChronics-v0",
+  "results_dir": "./results/grid2op_demo",
+  "ckpt_dir": "./results/grid2op",
+  "conditions": [
+    "G1"
+  ],
+  "seeds": [
+    0
+  ],
+  "T_eval": 600000,
+  "B": 25,
+  "w": 30000,
+  "s": 15000,
+  "t0_abrupt": 300000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "drift_metric_apply_to": "raw_env_obs",
+  "drift_params": {
+    "_comment": "Chronic split 50/50 inside Grid2opChronicsEnv/ChronicPerturbationWrapper: train-set (nominal) until t0=300k, test-set (drifted) after. rng_seed via env_kwargs."
+  },
+  "env_kwargs": {
+    "env_name": "l2rpn_case14_sandbox",
+    "rng_seed": 42
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Blackout / cascade game-over is operationally irreversible: terminated=True stops the deployment (T_hard). End-of-chronic is truncated=True and is NOT a failure.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "D1",
+  "perturbation_wrapper": "ChronicPerturbation",
+  "transition_schedules": [
+    "D1"
+  ]
+}

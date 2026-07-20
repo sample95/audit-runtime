@@ -1,0 +1,68 @@
+{
+  "_comment": "l2rpn_case14_sandbox | PPO | v12.2 | Power grid control",
+  "env_id": "l2rpn_case14_sandbox",
+  "results_dir": "./results/grid2op",
+  "conditions": [
+    "G1",
+    "G2",
+    "G3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 600000,
+  "B": 25,
+  "w": 30000,
+  "s": 15000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "safety_margins_apply_to": "raw_env_obs",
+  "drift_metric_apply_to": "raw_env_obs",
+  "_vecnormalize_note": "Final/common PPO policy branch uses VecNormalize when policies are trained with SB3 VecNormalize. Load matching *_vecnormalize.pkl, freeze stats during evaluation, and compute diagnostics from raw env observations/rewards.",
+  "drift_params": {
+    "_comment": "Chronic split: available chronics sorted by index, split 50/50. Train-set = first half (nominal). Test-set = second half (drifted). D0=baseline, D1=abrupt at t0, D2=gradual ramp."
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Grid game-over (cascade failure / blackout) is operationally irreversible.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "D1",
+  "obs_attrs": [
+    "rho",
+    "p_or",
+    "p_ex",
+    "load_p",
+    "gen_p",
+    "actual_dispatch",
+    "target_dispatch",
+    "curtailment",
+    "curtailment_limit",
+    "gen_p_before_curtail"
+  ],
+  "action_attrs": [
+    "redispatch",
+    "curtail"
+  ],
+  "condition_h": {
+    "G1": 1000,
+    "G2": 250,
+    "G3": 1000
+  },
+  "perturbation_wrapper": "ChronicPerturbation",
+  "transition_schedules": [
+    "D0",
+    "D1",
+    "D2"
+  ]
+}
