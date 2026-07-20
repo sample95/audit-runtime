@@ -1,0 +1,37 @@
+{
+  "_comment": "Walker2d-v4 | SAC | v12.2 Addendum | Cross-algorithm robustness check",
+  "env_id": "Walker2d-v4",
+  "results_dir": "./results/mujoco/walker2d",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "SAC",
+  "ckpt_suffix": "_sac",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715
+  },
+  "hard_failure_counts": false,
+  "_hard_failure_counts_rationale": "Same as PPO Walker2d \u2014 falls are recoverable. Failure criterion uses env defaults: z in [0.8, 2.0], |angle| <= 1.0.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

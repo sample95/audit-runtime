@@ -1,0 +1,51 @@
+{
+  "_comment": "Hover Q1 none-condition extended to ~5M steps \u2014 confirms null stability beyond 600k right-censoring horizon | 2026-07-03",
+  "_note": "B=332 covers windows [0, 4980000] with w=30k, s=15k. Last window ends at 4995000 = T_eval. Transition schedules already characterized at 600k; only none condition needs extension.",
+  "env_id": "PyFlyt/QuadX-Hover-v4",
+  "results_dir": "./results/pyflyt/hover_5M",
+  "ckpt_dir": "./results/pyflyt/hover",
+  "conditions": [
+    "Q1"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 4995000,
+  "B": 332,
+  "w": 30000,
+  "s": 15000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "save_trajectories": false,
+  "drift_params": {
+    "noise_std_max": 0.2,
+    "_comment": "Additive Gaussian obs noise \u2014 sensor degradation proxy."
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Quadrotor collision or out-of-bounds is operationally irreversible.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "env_kwargs": {
+    "flight_mode": 0,
+    "flight_dome_size": 3.0,
+    "sparse_reward": false,
+    "agent_hz": 40
+  },
+  "condition_durations": {
+    "Q1": 10.0,
+    "Q2": 2.5
+  },
+  "rul_weibull": {
+    "_comment": "Q1 gradual Weibull fit (T-27). If any Q1 agent fails under none condition, T_warn will fire and this produces a live RUL series. If all right-censored, series is all-None \u2014 no cost.",
+    "kappa": 2.93,
+    "lambda": 125000
+  },
+  "perturbation_wrapper": "ObsNoisePerturbation",
+  "transition_schedules": [
+    "baseline"
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "_comment": "Hopper-v5 SAC \u2014 reset-free live-monitor audit | v12.9 | 2026-07-04",
+  "_note": "Direct comparison to PPO hopper_t10.json: same T_eval/W/S/B/drift params. algo=SAC loads SB3 SAC checkpoints from hopper_sac/. Results to hopper_sac/t10_sac_v2/ to keep checkpoints clean.",
+  "_fixes": "v12.2 config had: env_id=Hopper-v4, results_dir pointing to PPO dir, ckpt_suffix=_sac (wrong \u2014 files are M1_seed0.zip), g_drifted=-14.715 (should be -19.62 for cross-algo comparison), drift_schedule=no_drift (should be none).",
+  "_bugs_fixed": "v1 (2026-07-06, results in t10_sac/) never set hard_failure_counts (defaulted False), and was run before the 2026-07-07 audit_deploy.py fix: rollout loop reset on terminated instead of stopping. Confirmed corrupted \u2014 deployment_len==T_eval for every run while T_hard clusters at 999,898\u2013999,989 (last-termination-before-loop-end artifact, same signature as the invalid Hopper 510k v1 rerun). thesis.tex \u00a73.1.4 'SAC continues operating... without catastrophic failure' was drawn from this artifact and is not verified. results_dir changed to _v2 so this rerun does not collide with/skip the invalid v1 output.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_sac/t10_sac_v2",
+  "ckpt_dir": "./results/mujoco/hopper_sac",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "SAC",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -19.62,
+    "abrupt_ramp_duration": 50000,
+    "_comment": "2\u00d7 nominal gravity \u2014 identical to PPO hopper_t10 for direct cross-algorithm comparison"
+  },
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

@@ -1,0 +1,35 @@
+{
+  "_comment": "PPO none-condition extended to 5M steps \u2014 checks for additional failures beyond M3_seed4 at 1.88M | 2026-07-02",
+  "_note": "B=199 covers all windows [0, 4950000] with w=50k, s=25k. Last window ends at 5000000 = T_eval. M3_seed4 failed at 1881811 in the 2M run; this checks whether other seeds fail in 1.88M\u20135M range.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper/t10_v2_none_5M",
+  "episodic_results_dir": "./results/mujoco/hopper",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 5000000,
+  "B": 199,
+  "w": 50000,
+  "s": 25000,
+  "ckpt_dir": "./results/mujoco/hopper",
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -19.62,
+    "_comment": "Nominal gravity only \u2014 drift never applied in none condition"
+  },
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline"
+  ]
+}

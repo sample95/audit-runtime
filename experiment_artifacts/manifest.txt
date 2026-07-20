@@ -1,0 +1,36 @@
+EXPERIMENT TRACEABILITY MANIFEST
+=================================
+
+Instrument version : v12.6 (locked audit parameters — see instrument.lock.json)
+Runtime version     : v12.9 (audit_deploy.py methodology tag printed in every run banner)
+
+Traceability claim
+-------------------
+instrument.lock.json is byte-identical to configs/instrument.json as committed
+in this repository. Every reported result (thesis Ch. 3, T-05 through T-43)
+was produced under these frozen thresholds: K0=4, q_warn=0.95, q_watch=0.90,
+c_fail=2.0, m_fail=2, tau_warn_floor=2e-4. These parameters were locked before
+any deployment run in the reported evaluation and were not adjusted after
+observing detection/false-alarm outcomes.
+
+Commit hash
+-----------
+TODO: fill in with `git rev-parse HEAD` after the final publish commit on the
+`main` branch. The original experiment runs (2026-06 to 2026-07) predate this
+repository's public git history — this repo is a reorganized snapshot
+(src_clean/, created 2026-06-12) of the working codebase used to run them, not
+a commit-by-commit record of the original development. The instrument-lock
+claim above (unchanged v12.6 parameters) is the actual traceability guarantee;
+the commit hash below identifies the exact code snapshot this release
+corresponds to, not the literal commit each historical run executed under.
+
+    commit: <fill in after publish>
+    date:   <fill in after publish>
+
+How to verify
+-------------
+    git show HEAD:experiment_artifacts/instrument.lock.json
+    git show HEAD:configs/instrument.json
+    diff <(git show HEAD:experiment_artifacts/instrument.lock.json) \
+         <(git show HEAD:configs/instrument.json)
+    # should print nothing (files are identical)

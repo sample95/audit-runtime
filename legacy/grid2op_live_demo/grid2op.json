@@ -1,0 +1,92 @@
+{
+  "_comment": "l2rpn_case14_sandbox | PPO | v12.2 | Power grid control",
+  "_env_id_note": "Fixed 2026-07-15: was 'l2rpn_case14_sandbox' (the raw grid2op name), which gym.make() would try to resolve directly and bypass Grid2opChronicsEnv entirely -- no BoxGymObsSpace/act-space construction, no chronic-drift wiring, no reset-free terminated/truncated reclassification. Must be the registered wrapper id, same as grid2op_demo.json, and must run via run_grid2op_demo.py (which calls grid2op_gym_env.register_env() before audit_deploy.py loads any checkpoint) -- direct core/audit_deploy.py invocation will NameError on this id. This full 3x5 config appears to have never actually been run end-to-end before; only grid2op_demo.json (n=1) was.",
+  "env_id": "Grid2opChronics-v0",
+  "env_kwargs": {
+    "env_name": "l2rpn_case14_sandbox",
+    "rng_seed": 42
+  },
+  "results_dir": "./results/grid2op",
+  "conditions": [
+    "G1",
+    "G2",
+    "G3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 600000,
+  "B": 25,
+  "w": 500,
+  "s": 250,
+  "_window_recalib_note": "Recalibrated 2026-07-16, replacing w=30000/s=15000 (instrument.json's Hopper/Walker2d-scale defaults, unchanged since this config's creation despite grid2op operating on a completely different timescale). Evidence: across all 450 deploy attempts in the first properly-chronic-diversified retry pass (15 checkpoints x 3 transitions x 10 retries, after fixing ChronicPerturbationWrapper's rng_seed to vary per attempt -- see grid2op_gym_env.py 2026-07-16 note), T_hard ranged 1-8064 (chronic length ceiling), median=806, p75=1658, p90=3285, p99=7607 -- i.e. the OLD PILOT_END=75000 exceeded the single longest survival ever observed by ~9x; zero attempts could ever complete even one 30000-step pilot window. New w=500/s=250 (same 2:1 w:s ratio used elsewhere, just rescaled ~60x smaller) gives PILOT_END=(K0-1)*s+w=1250 with K0=4 from instrument.json, which per-attempt has ~35% survival probability empirically -- with deploy_retry_attempts=10, P(at least one of 10 attempts clears it) = 1-0.65^10 ~= 98.7%, so nearly every checkpoint/condition/transition should now find a calibratable pilot run instead of 0/450.",
+  "t0_abrupt": 4000,
+  "_t0_abrupt_note": "Added 2026-07-16: previously unset, defaulting to T_eval//2=300000 -- since no attempt has ever survived past 8064 steps, D1 (abrupt)/D2 (gradual) transition schedules could never actually reach the test-chronic pool; every run was effectively D0 (baseline) regardless of its nominal transition label. 4000 sits past the new PILOT_END=1250 (pilot windows always draw train-set chronics regardless of t0, per ChronicPerturbationWrapper.select_chronic) while remaining within reach of the better-surviving attempts (~20% of the empirical distribution exceeds 4000), so drift conditions have a real chance to activate instead of being vacuous.",
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "safety_margins_apply_to": "raw_env_obs",
+  "drift_metric_apply_to": "raw_env_obs",
+  "_vecnormalize_note": "Final/common PPO policy branch uses VecNormalize when policies are trained with SB3 VecNormalize. Load matching *_vecnormalize.pkl, freeze stats during evaluation, and compute diagnostics from raw env observations/rewards.",
+  "drift_params": {
+    "_comment": "Chronic split: available chronics sorted by index, split 50/50. Train-set = first half (nominal). Test-set = second half (drifted). D0=baseline, D1=abrupt at t0, D2=gradual ramp."
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Grid game-over (cascade failure / blackout) is operationally irreversible.",
+  "deploy_retry_attempts": 10,
+  "_deploy_retry_attempts_note": "Added 2026-07-14, same mechanism as configs/walker2d.json / legacy/walker2d_zoo. Does NOT relax hard_failure_counts=true within a single attempt — blackout still ends that attempt immediately, irreversibly, as it should. What it changes: instead of one deployment seed per checkpoint deciding admissibility outright, each checkpoint gets up to 10 independent full reset-free attempts (fresh chronic/env seed each time); the first one to survive past the pilot window is kept, and every attempt tried is logged in deploy_attempts. Rationale: the audit instrument's job is to catch WHEN a genuinely-competent policy degrades under drift, without depending on a separately-computed training-quality verdict (pre_deployment.py's fail_rate is itself only a smoke test at a different horizon/reset regime, not the ground truth) — so let the deployment protocol's own survival statistics across attempts be the black-box-observable signal, same treatment as Walker2d, applied uniformly rather than gatekept by the pre-deployment report.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "D1",
+  "obs_attrs": [
+    "rho",
+    "p_or",
+    "p_ex",
+    "load_p",
+    "gen_p",
+    "actual_dispatch",
+    "target_dispatch",
+    "curtailment",
+    "curtailment_limit",
+    "gen_p_before_curtail"
+  ],
+  "action_attrs": [
+    "redispatch",
+    "curtail"
+  ],
+  "_action_attrs_by_condition_note": "Merged 2026-07-15 from /home/deck/.venvs/audit-framework/configs/grid2op.json (separate, more advanced local investigation). G1/G3 retrained with an added topology action after the plain redispatch+curtail Box space (6-dim) plateaued at fail_rate 0.40-0.70 despite converged reward. HISTORY (oldest->newest): (1) raw 'set_bus' added to BoxGymActSpace -- fail_rate WORSE (0.70-1.00), reverted. (2) 'sub_set_bus' via MultiDiscreteActSpace, 14 dims (one per substation) reconfigured simultaneously every step -- zero learning (flat training curves), reverted. (3) 'one_sub_set' (current): single categorical dim, at most one substation changes per step -- grid2op's own docstring-recommended representation. G2 was NOT retrained (already passed under the original Box space); its checkpoint's action head is fixed 6-dim continuous, so it must keep the plain 'action_attrs' list above via 'box'. Requires legacy/grid2op_live_demo/grid2op_gym_env.py's act_space branching (added 2026-07-15) and core/audit_deploy.py's per-condition env_kw resolution (added 2026-07-15) -- untested end-to-end, no grid2op install available to verify locally; smoke-test before any thesis-quoted run.",
+  "action_attrs_by_condition": {
+    "G1": ["redispatch", "curtail", "one_sub_set"],
+    "G2": ["redispatch", "curtail"],
+    "G3": ["redispatch", "curtail", "one_sub_set"]
+  },
+  "action_space_by_condition": {
+    "G1": "multidiscrete",
+    "G2": "box",
+    "G3": "multidiscrete"
+  },
+  "condition_h": {
+    "G1": 1000,
+    "G2": 250,
+    "G3": 1000
+  },
+  "_train_curve_thresh_note": "Merged 2026-07-15 from the same local config: ChronicPerturbation training-curve maturity thresholds recalibrated for grid2op's structural episode-return variance (stochastic cascade/blackout timing means even a converged policy has high episode-to-episode return dispersion, unlike MuJoCo's smooth per-step reward). Hopper-tuned defaults (max_plateau_cv=0.25, max_abs_last20p_slope=1e-4, max_abs_tail_gain=0.05) were empirically measured against 4 clearly-improved, fully-trained G1 seeds (improvement_ratio 1.76-3.70) and found to reject 100% of them on plateau_cv/slope alone. New ceilings give ~1.5-2x headroom over the observed range while staying inside the domain's own held-out eval CV tolerance (max_return_cv=5.0) -- a meaningful, non-vacuous gate, not a rubber stamp.",
+  "max_train_plateau_cv": 1.5,
+  "max_abs_last20p_slope": 0.002,
+  "max_abs_tail_gain": 0.5,
+  "perturbation_wrapper": "ChronicPerturbation",
+  "transition_schedules": [
+    "D0"
+  ],
+  "_transition_schedules_note": "Narrowed 2026-07-16 to D0 only, per Duarte: this is a live-monitor DEMO subject (legacy/grid2op_live_demo, archived out of the thesis's quantitative results per MIGRATION.md), not a full drift-detection protocol replication -- D1 (abrupt)/D2 (gradual) aren't needed here. Also sidesteps the t0_abrupt=4000-vs-median-T_hard timing overlap noted in the 2026-07-16 analysis (roughly half of D1/D2 runs likely never actually reached the drifted chronic pool before an unrelated hard failure), since that concern no longer applies with only D0 in scope."
+}

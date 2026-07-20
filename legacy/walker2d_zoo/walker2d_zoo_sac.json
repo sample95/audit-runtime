@@ -1,0 +1,38 @@
+{
+  "_comment": "Walker2d-v4 | EXTERNAL SB3-Zoo SAC checkpoint (HuggingFace sb3/sac-Walker2d-v3) | 2026-07-08",
+  "_env_version_note": "v4, not v5: gymnasium 0.29.1 provides MuJoCo envs up to v4 only.",
+  "_provenance": "Policy trained by the RL-Baselines3-Zoo project on Walker2d-v3 (single seed, zoo hyperparameters, no VecNormalize). Fetch + rename via training/fetch_walker2d_zoo.py. Same declared scope as walker2d_zoo_ppo.json: n=1, external subject, v3->v5 gap, demonstration not replication. Run baseline first; pre-deployment gate decides.",
+  "env_id": "Walker2d-v4",
+  "results_dir": "./results/mujoco/walker2d_zoo",
+  "ckpt_dir": "./results/mujoco/walker2d_zoo",
+  "conditions": [
+    "ZS"
+  ],
+  "seeds": [
+    0
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "t0_abrupt": 510000,
+  "algo": "SAC",
+  "ckpt_suffix": "",
+  "vecnormalize_required": false,
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "drift_metric_apply_to": "raw_env_obs",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715
+  },
+  "hard_failure_counts": true,
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

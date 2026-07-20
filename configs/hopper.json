@@ -1,0 +1,58 @@
+{
+  "_comment": "Hopper-v5 | PPO | v12.4 | MuJoCo locomotion",
+  "env_id": "Hopper-v5",
+  "ckpt_dir": "./results/mujoco/hopper",
+  "results_dir": "./results/mujoco/hopper/t05",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -19.62,
+    "abrupt_ramp_duration": 50000,
+    "_comment": "2x nominal gravity \u2014 locked by T-03; abrupt uses 50k-step linear ramp (T-10 revision 2026-05-14)"
+  },
+  "hard_failure_counts": false,
+  "_hard_failure_counts_rationale": "Hopper falls are recoverable episode resets; sustained degradation (T_soft) drives T_comp. T_hard logged as diagnostic only.",
+  "suppress_hard_failure_warning": true,
+  "_suppress_hard_failure_warning_rationale": "Rationale already documented above. Suppresses per-episode console noise from FIX-6 in deployment_wb.py.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "safety_margins": [
+    {
+      "_comment": "Hopper is_healthy: z in [0.7, inf). obs[0] = qpos[1] = torso z-height (x excluded by default).",
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "_comment": "Hopper is_healthy: torso angle in [-0.2, 0.2] rad. obs[1] = qpos[2] = torso lean angle.",
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ]
+}

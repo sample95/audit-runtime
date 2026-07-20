@@ -1,0 +1,55 @@
+{
+  "_comment": "T-04 observation noise comparison | M3 \u00d7 abrupt \u00d7 5 seeds \u00d7 1M steps",
+  "_purpose": "Check framework generalisation across perturbation types. ObsNoisePerturbation isolates the JSD channel: D_k rises immediately (obs distribution shifts), reward degrades later. Compare Pr(timely) vs 2\u00d7 gravity result (0.40). See planned_tests.md T-04 and tuning_journal.md T-04.",
+  "_parameters": "floor=2e-4 (instrument.json), m_fail=2 (instrument.json) \u2014 locked by T-01/T-02.",
+  "_why_M3_only": "Consistent with T-03 \u2014 M3 \u00d7 abrupt is the characterisation slice. Keeps T-04 to 5 runs.",
+  "_healthy_reward_note": "T-03 revealed healthy_reward masking: T_soft may not fire if per-window reward stays above threshold due to episodic resets. ObsNoisePerturbation may have the same issue if noise causes frequent falls. If delta=0 for all seeds, this confirms masking is environment-level, not gravity-specific.",
+  "env_id": "Hopper-v5",
+  "results_dir": "./results/mujoco/hopper_noise",
+  "ckpt_dir": "./results/mujoco/hopper/subjectB",
+  "conditions": [
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "drift_params": {
+    "noise_std_max": 0.3,
+    "rng_seed": 42,
+    "_comment": "Additive Gaussian noise sigma=0.3 on raw obs. Abrupt injection at T0=500k."
+  },
+  "hard_failure_counts": false,
+  "suppress_hard_failure_warning": true,
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "safety_margins": [
+    {
+      "_comment": "Hopper is_healthy: z in [0.7, inf). obs[0] = qpos[1] = torso z-height.",
+      "name": "torso_height",
+      "obs_idx": 0,
+      "lo": 0.7,
+      "hi": 2.0
+    },
+    {
+      "_comment": "Hopper is_healthy: torso angle in [-0.2, 0.2] rad. obs[1] = qpos[2] = torso lean.",
+      "name": "torso_angle",
+      "obs_idx": 1,
+      "lo": -0.2,
+      "hi": 0.2
+    }
+  ],
+  "perturbation_wrapper": "ObsNoisePerturbation",
+  "transition_schedules": [
+    "abrupt"
+  ]
+}

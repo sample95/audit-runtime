@@ -1,0 +1,47 @@
+{
+  "_comment": "Grid2op live-monitor DEMO v2: DO-NOTHING frozen baseline, grid-scale windows | 2026-07-12",
+  "_scope": "n=1 reset-free live-monitor demonstration. The audited frozen policy is the rule-based do-nothing baseline (scripted_agent in env_kwargs); the PPO checkpoint is loaded as an inert driver only \u2014 its actions are discarded by the adapter. Declared per-seed: 3 seeds attempted, ALL outcomes reported (R38: pre-pilot blackout = policy failure). Windows re-scaled to grid time after the w=30k parameterization proved infeasible (one step = 5 simulated minutes; w=2016 = one chronic week; pilot ends at 5,040 steps = ~2.5 weeks nominal). t0=8,500 sits OFF the window grid (boundary-artefact lesson).",
+  "env_id": "Grid2opChronics-v0",
+  "results_dir": "./results/grid2op_dn",
+  "ckpt_dir": "./results/grid2op",
+  "conditions": [
+    "G1"
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "T_eval": 600000,
+  "B": 25,
+  "w": 2016,
+  "s": 1008,
+  "t0_abrupt": 8500,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "drift_metric_apply_to": "raw_env_obs",
+  "drift_params": {
+    "_comment": "Chronic split 50/50 inside Grid2opChronicsEnv/ChronicPerturbationWrapper: train-set (nominal) until t0=300k, test-set (drifted) after. rng_seed via env_kwargs."
+  },
+  "env_kwargs": {
+    "env_name": "l2rpn_case14_sandbox",
+    "rng_seed": 42,
+    "scripted_agent": "do_nothing"
+  },
+  "hard_failure_counts": true,
+  "_hard_failure_counts_rationale": "Blackout / cascade game-over is operationally irreversible: terminated=True stops the deployment (T_hard). End-of-chronic is truncated=True and is NOT a failure.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "D1",
+  "perturbation_wrapper": "ChronicPerturbation",
+  "transition_schedules": [
+    "D1"
+  ]
+}

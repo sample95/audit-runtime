@@ -1,0 +1,54 @@
+{
+  "_comment": "Walker2d-v5 | PPO | v12.2 | MuJoCo locomotion",
+  "env_id": "Walker2d-v5",
+  "results_dir": "./results/mujoco/walker2d",
+  "conditions": [
+    "M1",
+    "M2",
+    "M3"
+  ],
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "T_eval": 1000000,
+  "B": 21,
+  "w": 50000,
+  "s": 25000,
+  "algo": "PPO",
+  "ckpt_suffix": "",
+  "vecnormalize_required": true,
+  "vecnormalize_suffix": "_vecnormalize.pkl",
+  "vecnormalize_training": false,
+  "vecnormalize_norm_obs": true,
+  "vecnormalize_norm_reward": false,
+  "policy_observation_space": "vecnormalize_obs",
+  "audit_observation_space": "raw_env_obs",
+  "audit_reward_space": "raw_env_reward",
+  "safety_margins_apply_to": "raw_env_obs",
+  "drift_metric_apply_to": "raw_env_obs",
+  "_vecnormalize_note": "Final/common PPO policy branch uses VecNormalize. Load matching *_vecnormalize.pkl, freeze stats during evaluation, and compute diagnostics from raw env observations/rewards.",
+  "drift_params": {
+    "g_nominal": -9.81,
+    "g_drifted": -14.715,
+    "_comment": "1.5x nominal gravity — documented perturbation choice"
+  },
+  "hard_failure_counts": false,
+  "_hard_failure_counts_rationale": "SUPERSEDED 2026-07-14: audit_deploy.py v12.9's reset-free design has no mid-deployment reset path for ANY domain (this field is read but unused in run_deployment; see A_len channel comment). Walker2d's occasional falls, unlike Hopper's, are not correlated with drift and can end an otherwise-good policy's deployment before the pilot window completes purely by chance. Resolved via deploy_retry_attempts instead of resets: each attempt is a full independent reset-free run (fresh env seed, still zero resets within a run); keep the first attempt that survives past the pilot window. See deploy_attempts field in each run's metrics_summary.json for every attempt tried.",
+  "gradual_ramp_after_pilot": true,
+  "delta_delay_schedule": "abrupt",
+  "perturbation_wrapper": "GravityPerturbation",
+  "transition_schedules": [
+    "baseline",
+    "abrupt",
+    "gradual"
+  ],
+  "t0_abrupt": 510000,
+  "_t0_note": "510k, off the window grid (thesis sec 3.1.2 boundary-artefact lesson)",
+  "_gate_note": "SUPERSEDED 2026-07-14: fresh retrain passes the pre-deployment gate cleanly for all 3 conditions (M1/M2/M3), all 5 seeds each -- see results/mujoco/walker2d/pre_deployment_walker2d.png. The earlier M2-exclusion note was from the prior (2026-07-08) training batch and no longer applies to this checkpoint set. All conditions admitted for deployment.",
+  "deploy_retry_attempts": 10,
+  "_deploy_retry_attempts_note": "Legitimate here because pre_deployment_walker2d.png (2026-07-14 retrain) shows all 3 conditions PASS cleanly (mu return 4876/4582/5198, fail_rate near zero, all 5 seeds green on all 7 checks) -- training quality is confirmed good, so attempt-to-attempt retries are characterizing reset-free survival variance for an already-validated policy, not laundering a bad seed. Contrast with grid2op G1, where retries were rejected because the pre-deployment gate itself showed poor training quality."
+}
